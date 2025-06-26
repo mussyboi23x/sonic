@@ -22,6 +22,8 @@
     #ruffle {
       width: 100%;
       height: 100%;
+      position: relative;
+      z-index: 1;
     }
     .controls {
       position: fixed;
@@ -36,16 +38,19 @@
       pointer-events: none;
       z-index: 10;
     }
-    .btn {
+    .controls button,
+    .jump {
       width: 60px;
       height: 60px;
       background: rgba(255, 255, 255, 0.2);
       color: white;
       font-size: 20px;
+      border: none;
       border-radius: 8px;
       text-align: center;
       line-height: 60px;
       pointer-events: auto;
+      z-index: 10;
     }
     .up    { grid-area: up; }
     .down  { grid-area: down; }
@@ -61,11 +66,7 @@
       height: 80px;
       font-size: 18px;
       line-height: 80px;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
       border-radius: 50%;
-      text-align: center;
-      pointer-events: auto;
     }
   </style>
 </head>
@@ -75,15 +76,15 @@
 
   <!-- Arrow buttons -->
   <div class="controls">
-    <div class="btn up"    ontouchstart="press('ArrowUp', event)"    ontouchend="release('ArrowUp', event)">↑</div>
-    <div class="btn down"  ontouchstart="press('ArrowDown', event)"  ontouchend="release('ArrowDown', event)">↓</div>
-    <div class="btn left"  ontouchstart="press('ArrowLeft', event)"  ontouchend="release('ArrowLeft', event)">←</div>
-    <div class="btn right" ontouchstart="press('ArrowRight', event)" ontouchend="release('ArrowRight', event)">→</div>
-    <div class="btn none"></div>
+    <button class="up"    ontouchstart="press('ArrowUp', event)"    ontouchend="release('ArrowUp', event)">↑</button>
+    <button class="down"  ontouchstart="press('ArrowDown', event)"  ontouchend="release('ArrowDown', event)">↓</button>
+    <button class="left"  ontouchstart="press('ArrowLeft', event)"  ontouchend="release('ArrowLeft', event)">←</button>
+    <button class="right" ontouchstart="press('ArrowRight', event)" ontouchend="release('ArrowRight', event)">→</button>
+    <div class="none"></div>
   </div>
 
   <!-- Jump button -->
-  <div class="jump btn" ontouchstart="press('KeyS', event)" ontouchend="release('KeyS', event)">Jump</div>
+  <button class="jump" ontouchstart="press('KeyS', event)" ontouchend="release('KeyS', event)">Jump</button>
 
   <!-- Ruffle loader -->
   <script>
@@ -127,4 +128,3 @@
 
 </body>
 </html>
-
