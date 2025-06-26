@@ -3,76 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <title>Fancy Pants Adventure 2</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<script src="https://unpkg.com/@ruffle-rs/ruffle/ruffle.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/@ruffle-rs/ruffle/ruffle.js"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #000;
-      overflow: hidden;
+      background: #000;
       height: 100%;
+      overflow: hidden;
     }
     ruffle-player {
       width: 100vw;
       height: 100vh;
       display: block;
     }
-    .controls {
-      position: fixed;
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      pointer-events: none;
-    }
-    .btn {
-      background: rgba(255,255,255,0.2);
-      padding: 20px;
-      border-radius: 50%;
-      font-size: 18px;
-      color: white;
-      pointer-events: auto;
-      user-select: none;
-      text-align: center;
-    }
-    #movement { bottom: 10%; }
-    #actions { bottom: 25%; }
   </style>
 </head>
 <body>
-
-  <!-- SWF Game via Ruffle -->
-  <ruffle-player id="game" src="FPAWorld2.swf"></ruffle-player>
-
-  <!-- Movement controls -->
-  <div class="controls" id="movement">
-    <div class="btn" ontouchstart="press('ArrowLeft')" ontouchend="release('ArrowLeft')">←</div>
-    <div class="btn" ontouchstart="press('ArrowRight')" ontouchend="release('ArrowRight')">→</div>
-  </div>
-
-  <!-- Jump (S) and Attack (A) controls -->
-  <div class="controls" id="actions">
-    <div class="btn" ontouchstart="press('s')" ontouchend="release('s')">Jump</div>
-    <div class="btn" ontouchstart="press('a')" ontouchend="release('a')">Attack</div>
-  </div>
-
-  <script>
-    function getFrame() {
-      const player = document.querySelector("ruffle-player");
-      return player.shadowRoot ? player.shadowRoot.querySelector("embed") : null;
-    }
-
-    function press(key) {
-      const frame = getFrame();
-      if (frame) frame.dispatchEvent(new KeyboardEvent("keydown", { key }));
-    }
-
-    function release(key) {
-      const frame = getFrame();
-      if (frame) frame.dispatchEvent(new KeyboardEvent("keyup", { key }));
-    }
-  </script>
-
+  <ruffle-player src="FPAWorld2.swf"></ruffle-player>
 </body>
 </html>
