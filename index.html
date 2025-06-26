@@ -48,112 +48,113 @@
 </head>
 <body>
 
-<!-- Game container -->
-<div id="ruffle"></div>
+  <!-- Ruffle container -->
+  <div id="ruffle"></div>
 
-<!-- Joystick area -->
-<div id="joystick-zone"></div>
+  <!-- Joystick -->
+  <div id="joystick-zone"></div>
 
-<!-- Jump button -->
-<button class="jump-button"
-  ontouchstart="sendKey('KeyS', 'keydown')"
-  ontouchend="sendKey('KeyS', 'keyup')">S</button>
+  <!-- Jump button -->
+  <button class="jump-button"
+    ontouchstart="sendKey('KeyS', 'keydown')"
+    ontouchend="sendKey('KeyS', 'keyup')">S</button>
 
-<!-- Ruffle loader -->
-<script>
-  function loadLocalRuffle() {
-    const script = document.createElement('script');
-    script.src = 'ruffle/ruffle.js';
-    document.body.appendChild(script);
-  }
-
-  const cdnScript = document.createElement('script');
-  cdnScript.src = 'https://unpkg.com/@ruffle-rs/ruffle/ruffle.js';
-  cdnScript.onerror = loadLocalRuffle;
-  document.body.appendChild(cdnScript);
-</script>
-
-<!-- NippleJS joystick -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
-
-<!-- Game + controls -->
-<script>
-  function sendKey(code, type = 'keydown') {
-    const player = document.getElementById("player");
-    if (player && player._input) {
-      if (type === 'keydown') {
-        player._input.dispatch_key_down({ code });
-      } else {
-        player._input.dispatch_key_up({ code });
-      }
-    }
-  }
-
-  window.RufflePlayer = window.RufflePlayer || {};
-  window.addEventListener("load", () => {
-    const ruffle = window.RufflePlayer.newest();
-    const player = ruffle.createPlayer();
-    const container = document.getElementById("ruffle");
-    player.id = "player";
-    player.style.width = "100%";
-    player.style.height = "100%";
-    container.appendChild(player);
-    player.load("FPAWorld2.swf");
-
-    // Joystick setup
-    const DEADZONE = 40;
-    const keyMap = {
-      up: 'ArrowUp',
-      down: 'ArrowDown',
-      left: 'ArrowLeft',
-      right: 'ArrowRight'
-    };
-
-    let activeDirections = {};
-    function clearAllDirections() {
-      for (const key in activeDirections) {
-        sendKey(keyMap[key], 'keyup');
-      }
-      activeDirections = {};
+  <!-- Load Ruffle (CDN + fallback to local) -->
+  <script>
+    function loadLocalRuffle() {
+      const script = document.createElement('script');
+      script.src = 'ruffle/ruffle.js'; // local fallback
+      document.body.appendChild(script);
     }
 
-    const joystick = nipplejs.create({
-      zone: document.getElementById('joystick-zone'),
-      mode: 'static',
-      position: { left: '120px', bottom: '120px' },
-      size: 180,
-      color: 'white',
-      restOpacity: 0.5
-    });
+    const cdnScript = document.createElement('script');
+    cdnScript.src = 'https://unpkg.com/@ruffle-rs/ruffle/ruffle.js';
+    cdnScript.onerror = loadLocalRuffle;
+    document.body.appendChild(cdnScript);
+  </script>
 
-    joystick.on('move', (evt, data) => {
-      if (data.distance < DEADZONE || !data.direction?.angle) {
-        clearAllDirections();
-        return;
-      }
-
-      const dir = data.direction.angle;
-      const directions = {
-        up: dir.includes('up'),
-        down: dir.includes('down'),
-        left: dir.includes('left'),
-        right: dir.includes('right'),
-      };
-
-      for (const [key, active] of Object.entries(directions)) {
-        if (active && !activeDirections[key]) {
-          sendKey(keyMap[key], 'keydown');
-          activeDirections[key] = true;
-        } else if (!active && activeDirections[key]) {
-          sendKey(keyMap[key], 'keyup');
-          delete activeDirections[key];
+  <!-- Joystick + game setup -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+  <script>
+    function sendKey(code, type = 'keydown') {
+      const player = document.getElementById("player");
+      if (player && player._input) {
+        if (type === 'keydown') {
+          player._input.dispatch_key_down({ code });
+        } else {
+          player._input.dispatch_key_up({ code });
         }
       }
-    });
+    }
 
-    joystick.on('end', clearAllDirections);
-  });
-</script>
+    window.RufflePlayer = window.RufflePlayer || {};
+    window.addEventListener("load", () => {
+      const ruffle = window.RufflePlayer.newest();
+      const player = ruffle.createPlayer();
+      const container = document.getElementById("ruffle");
+      player.id = "player";
+      player.style.width = "100%";
+      player.style.height = "100%";
+      container.appendChild(player);
+      player.load("FPAWorld2.swf");
+
+      setTimeout(() => {
+        player.focus?.();
+      }, 500);
+
+      const DEADZONE = 40;
+      const keyMap = {
+        up: 'ArrowUp',
+        down: 'ArrowDown',
+        left: 'ArrowLeft',
+        right: 'ArrowRight'
+      };
+
+      let activeDirections = {};
+      function clearAllDirections() {
+        for (const key in activeDirections) {
+          sendKey(keyMap[key], 'keyup');
+        }
+        activeDirections = {};
+      }
+
+      const joystick = nipplejs.create({
+        zone: document.getElementById('joystick-zone'),
+        mode: 'static',
+        position: { left: '120px', bottom: '120px' },
+        size: 180,
+        color: 'white',
+        restOpacity: 0.5
+      });
+
+      joystick.on('move', (evt, data) => {
+        if (data.distance < DEADZONE || !data.direction?.angle) {
+          clearAllDirections();
+          return;
+        }
+
+        const dir = data.direction.angle;
+        const directions = {
+          up: dir.includes('up'),
+          down: dir.includes('down'),
+          left: dir.includes('left'),
+          right: dir.includes('right'),
+        };
+
+        for (const [key, active] of Object.entries(directions)) {
+          if (active && !activeDirections[key]) {
+            sendKey(keyMap[key], 'keydown');
+            activeDirections[key] = true;
+          } else if (!active && activeDirections[key]) {
+            sendKey(keyMap[key], 'keyup');
+            delete activeDirections[key];
+          }
+        }
+      });
+
+      joystick.on('end', clearAllDirections);
+    });
+  </script>
 
 </body>
 </html>
