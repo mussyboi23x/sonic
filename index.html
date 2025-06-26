@@ -6,6 +6,12 @@
   <title>Fancy Pants Adventure 2</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
   <style>
+    * {
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -19,28 +25,48 @@
     }
     .controls {
       position: fixed;
-      bottom: 10%;
-      width: 100%;
-      display: flex;
-      justify-content: center;
+      bottom: 8%;
+      left: 5%;
+      display: grid;
+      grid-template-areas:
+        ".    up    ."
+        "left none right"
+        ".   down   .";
+      grid-gap: 10px;
       pointer-events: none;
       z-index: 10;
     }
     .btn {
+      width: 60px;
+      height: 60px;
       background: rgba(255, 255, 255, 0.2);
       color: white;
-      font-size: 18px;
+      font-size: 20px;
       border-radius: 8px;
-      margin: 8px;
-      padding: 14px 16px;
+      text-align: center;
+      line-height: 60px;
       pointer-events: auto;
       user-select: none;
-      text-align: center;
     }
+    .up    { grid-area: up; }
+    .down  { grid-area: down; }
+    .left  { grid-area: left; }
+    .right { grid-area: right; }
+    .none  { grid-area: none; }
+
     .jump {
       position: fixed;
-      right: 5%;
       bottom: 25%;
+      right: 5%;
+      width: 80px;
+      height: 80px;
+      font-size: 18px;
+      line-height: 80px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      pointer-events: auto;
     }
   </style>
 </head>
@@ -48,16 +74,19 @@
 
   <div id="ruffle"></div>
 
-  <!-- Touch Controls -->
+  <!-- Arrow buttons -->
   <div class="controls">
-    <div class="btn" ontouchstart="press('ArrowUp')"    ontouchend="release('ArrowUp')">↑</div>
-    <div class="btn" ontouchstart="press('ArrowLeft')"  ontouchend="release('ArrowLeft')">←</div>
-    <div class="btn" ontouchstart="press('ArrowDown')"  ontouchend="release('ArrowDown')">↓</div>
-    <div class="btn" ontouchstart="press('ArrowRight')" ontouchend="release('ArrowRight')">→</div>
+    <div class="btn up"    ontouchstart="press('ArrowUp', event)"    ontouchend="release('ArrowUp', event)">↑</div>
+    <div class="btn down"  ontouchstart="press('ArrowDown', event)"  ontouchend="release('ArrowDown', event)">↓</div>
+    <div class="btn left"  ontouchstart="press('ArrowLeft', event)"  ontouchend="release('ArrowLeft', event)">←</div>
+    <div class="btn right" ontouchstart="press('ArrowRight', event)" ontouchend="release('ArrowRight', event)">→</div>
+    <div class="btn none"></div>
   </div>
-  <div class="btn jump" ontouchstart="press('s')" ontouchend="release('s')">Jump</div>
 
-  <!-- Ruffle loader -->
+  <!-- Jump button -->
+  <div class="jump btn" ontouchstart="press('s', event)" ontouchend="release('s', event)">Jump</div>
+
+  <!-- Ruffle script loader -->
   <script>
     function loadLocalRuffle() {
       const script = document.createElement('script');
@@ -71,6 +100,7 @@
     document.body.appendChild(cdnScript);
   </script>
 
+  <!-- Ruffle setup & controls -->
   <script>
     window.RufflePlayer = window.RufflePlayer || {};
     window.addEventListener("load", () => {
@@ -84,16 +114,18 @@
     });
 
     function getFrame() {
-      const embed = document.getElementById("player")?.shadowRoot?.querySelector("embed");
-      return embed;
+      const player = document.getElementById("player");
+      return player?.shadowRoot?.querySelector("embed");
     }
 
-    function press(key) {
+    function press(key, e) {
+      e?.preventDefault();
       const frame = getFrame();
       if (frame) frame.dispatchEvent(new KeyboardEvent("keydown", { key }));
     }
 
-    function release(key) {
+    function release(key, e) {
+      e?.preventDefault();
       const frame = getFrame();
       if (frame) frame.dispatchEvent(new KeyboardEvent("keyup", { key }));
     }
