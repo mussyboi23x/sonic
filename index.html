@@ -17,18 +17,51 @@
       width: 100%;
       height: 100%;
     }
+    .controls {
+      position: fixed;
+      bottom: 10%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 18px;
+      border-radius: 8px;
+      margin: 8px;
+      padding: 14px 16px;
+      pointer-events: auto;
+      user-select: none;
+      text-align: center;
+    }
+    .jump {
+      position: fixed;
+      right: 5%;
+      bottom: 25%;
+    }
   </style>
-  <!-- Optional: cloak.js if you want to hide the page in school -->
-  <!-- <script src="storage/js/cloak.js"></script> -->
 </head>
 <body>
 
   <div id="ruffle"></div>
 
+  <!-- Touch Controls -->
+  <div class="controls">
+    <div class="btn" ontouchstart="press('ArrowUp')"    ontouchend="release('ArrowUp')">↑</div>
+    <div class="btn" ontouchstart="press('ArrowLeft')"  ontouchend="release('ArrowLeft')">←</div>
+    <div class="btn" ontouchstart="press('ArrowDown')"  ontouchend="release('ArrowDown')">↓</div>
+    <div class="btn" ontouchstart="press('ArrowRight')" ontouchend="release('ArrowRight')">→</div>
+  </div>
+  <div class="btn jump" ontouchstart="press('s')" ontouchend="release('s')">Jump</div>
+
+  <!-- Ruffle loader -->
   <script>
     function loadLocalRuffle() {
       const script = document.createElement('script');
-      script.src = 'ruffle/ruffle.js'; // fallback if CDN fails
+      script.src = 'ruffle/ruffle.js';
       document.body.appendChild(script);
     }
 
@@ -47,8 +80,23 @@
       player.style.width = "100%";
       player.style.height = "100%";
       document.getElementById("ruffle").appendChild(player);
-      player.load("FPAWorld2.swf"); // match your SWF filename
+      player.load("FPAWorld2.swf");
     });
+
+    function getFrame() {
+      const embed = document.getElementById("player")?.shadowRoot?.querySelector("embed");
+      return embed;
+    }
+
+    function press(key) {
+      const frame = getFrame();
+      if (frame) frame.dispatchEvent(new KeyboardEvent("keydown", { key }));
+    }
+
+    function release(key) {
+      const frame = getFrame();
+      if (frame) frame.dispatchEvent(new KeyboardEvent("keyup", { key }));
+    }
   </script>
 
 </body>
