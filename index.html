@@ -3,132 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fancy Pants Adventure 2</title>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  <title>Choose Your Weapon</title>
+  <link rel="shortcut icon" href="../../images/ico.ico" type="image/x-icon" />
+  <script src="../../storage/js/cloak.js"></script>
   <style>
-    * {
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      user-select: none;
-      touch-action: manipulation;
-    }
     body {
       margin: 0;
       padding: 0;
       background-color: black;
-      height: 100vh;
       overflow: hidden;
     }
-    #ruffle {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      z-index: 1;
-    }
-    .controls {
-      position: fixed;
-      bottom: 8%;
-      left: 5%;
-      display: grid;
-      grid-template-areas:
-        ".    up    ."
-        "left none right"
-        ".   down   .";
-      grid-gap: 10px;
-      pointer-events: none;
-      z-index: 10;
-    }
-    .controls button,
-    .jump {
-      width: 60px;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      font-size: 20px;
-      border: none;
-      border-radius: 8px;
-      text-align: center;
-      line-height: 60px;
-      pointer-events: auto;
-      z-index: 10;
-    }
-    .up    { grid-area: up; }
-    .down  { grid-area: down; }
-    .left  { grid-area: left; }
-    .right { grid-area: right; }
-    .none  { grid-area: none; }
 
-    .jump {
-      position: fixed;
+    #joystick-zone {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 240px;
+      height: 240px;
+      z-index: 10;
+    }
+
+    .jump-button {
+      position: absolute;
       bottom: 25%;
       right: 5%;
       width: 80px;
       height: 80px;
-      font-size: 18px;
-      line-height: 80px;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: white;
+      color: black;
+      border: none;
       border-radius: 50%;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
 
-  <div id="ruffle"></div>
+<!-- Ruffle container -->
+<div id="ruffle" style="height:100%; width:100%;"></div>
 
-  <!-- Arrow buttons -->
-  <div class="controls">
-    <button class="up"    ontouchstart="press('ArrowUp', event)"    ontouchend="release('ArrowUp', event)">↑</button>
-    <button class="down"  ontouchstart="press('ArrowDown', event)"  ontouchend="release('ArrowDown', event)">↓</button>
-    <button class="left"  ontouchstart="press('ArrowLeft', event)"  ontouchend="release('ArrowLeft', event)">←</button>
-    <button class="right" ontouchstart="press('ArrowRight', event)" ontouchend="release('ArrowRight', event)">→</button>
-    <div class="none"></div>
-  </div>
+<!-- Joystick -->
+<div id="joystick-zone"></div>
 
-  <!-- Jump button -->
-  <button class="jump" ontouchstart="press('KeyS', event)" ontouchend="release('KeyS', event)">Jump</button>
+<!-- Jump button -->
+<button class="jump-button"
+  ontouchstart="sendKey('KeyS', 'keydown')"
+  ontouchend="sendKey('KeyS', 'keyup')">S</button>
 
-  <!-- Ruffle loader -->
-  <script>
-    function loadLocalRuffle() {
-      const script = document.createElement('script');
-      script.src = 'ruffle/ruffle.js';
-      document.body.appendChild(script);
+<!-- Ruffle loader -->
+<script>
+  function loadLocalRuffle() {
+    const script = document.createElement('script');
+    script.src = '../../storage/ruffle/ruffle.js';
+    document.body.appendChild(script);
+  }
+
+  const cdnScript = document.createElement('script');
+  cdnScript.src = 'https://unpkg.com/@ruffle-rs/ruffle/ruffle.js';
+  cdnScript.onerror = loadLocalRuffle;
+  document.body.appendChild(cdnScript);
+</script>
+
+<!-- NippleJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+
+<!-- Game logic -->
+<script>
+  function sendKey(code, type = 'keydown') {
+    const player = document.getElementById("player");
+    if (player && player._input) {
+      if (type === 'keydown') {
+        player._input.dispatch_key_down({ code });
+      } else {
+        player._input.dispatch_key_up({ code });
+      }
     }
+  }
 
-    const cdnScript = document.createElement('script');
-    cdnScript.src = 'https://unpkg.com/@ruffle-rs/ruffle/ruffle.js';
-    cdnScript.onerror = loadLocalRuffle;
-    document.body.appendChild(cdnScript);
-  </script>
+  window.RufflePlayer = window.RufflePlayer || {};
+  window.addEventListener("load", () => {
+    const ruffle = window.RufflePlayer.newest();
+    const player = ruffle.createPlayer();
+    const container = document.getElementById("ruffle");
+    player.id = "player";
+    player.style.width = "100%";
+    player.style.height = "100%";
+    container.appendChild(player);
+    player.load("choose-your-weapon.swf");
 
-  <!-- Ruffle setup & controls -->
-  <script>
-    window.RufflePlayer = window.RufflePlayer || {};
-    window.addEventListener("load", () => {
-      const ruffle = window.RufflePlayer.newest();
-      const player = ruffle.createPlayer();
-      player.id = "player";
-      player.style.width = "100%";
-      player.style.height = "100%";
-      document.getElementById("ruffle").appendChild(player);
-      player.load("FPAWorld2.swf");
-      setTimeout(() => {
+    // Focus nudge
+    setTimeout(() => {
       player.focus?.();
-      }, 500);
+    }, 500);
 
+    // Joystick setup
+    const DEADZONE = 40;
+    const joystick = nipplejs.create({
+      zone: document.getElementById('joystick-zone'),
+      mode: 'static',
+      position: { left: '120px', bottom: '120px' },
+      size: 180,
+      color: 'white',
+      restOpacity: 0.5
     });
 
-    function press(code, e) {
-      e?.preventDefault();
-      const player = document.getElementById("player");
-      player?._input?.dispatch_key_down({ code });
+    const keyMap = {
+      up: 'ArrowUp',
+      down: 'ArrowDown',
+      left: 'ArrowLeft',
+      right: 'ArrowRight'
+    };
+
+    let activeDirections = {};
+
+    function clearAllDirections() {
+      for (const key of Object.keys(activeDirections)) {
+        sendKey(keyMap[key], 'keyup');
+      }
+      activeDirections = {};
     }
 
-    function release(code, e) {
-      e?.preventDefault();
-      const player = document.getElementById("player");
-      player?._input?.dispatch_key_up({ code });
-    }
-  </script>
+    joystick.on('move', (evt, data) => {
+      if (data.distance < DEADZONE || !data.direction?.angle) {
+        clearAllDirections();
+        return;
+      }
+
+      const dir = data.direction.angle;
+      const directions = {
+        up: dir.includes('up'),
+        down: dir.includes('down'),
+        left: dir.includes('left'),
+        right: dir.includes('right'),
+      };
+
+      for (const [key, isActive] of Object.entries(directions)) {
+        if (isActive && !activeDirections[key]) {
+          sendKey(keyMap[key], 'keydown');
+          activeDirections[key] = true;
+        } else if (!isActive && activeDirections[key]) {
+          sendKey(keyMap[key], 'keyup');
+          delete activeDirections[key];
+        }
+      }
+    });
+
+    joystick.on('end', () => {
+      clearAllDirections();
+    });
+  });
+</script>
 
 </body>
 </html>
