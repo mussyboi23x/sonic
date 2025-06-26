@@ -32,34 +32,34 @@
     </style>
 </head>
 <body>
-<script src="/js/main.js"></script>
-
-<!-- Load Ruffle -->
-<script>
-    function loadLocalRuffle() {
-        var script = document.createElement('script');
-        script.src = 'ruffle/ruffle.js';
-        document.body.appendChild(script);
-    }
-
-    var cdnScript = document.createElement('script');
-    cdnScript.src = 'https://unpkg.com/@ruffle-rs/ruffle';
-    cdnScript.onerror = loadLocalRuffle;
-    document.body.appendChild(cdnScript);
-</script>
-
-<!-- Ruffle Container -->
 <div id="ruffle" style="width:100%; height:100%;"></div>
-
-<!-- Joysticks -->
 <div id="joystick-left"></div>
 <div id="joystick-right"></div>
 
-<!-- NippleJS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<!-- Ruffle Loader -->
 <script>
-    window.RufflePlayer = window.RufflePlayer || {};
-    window.addEventListener("load", () => {
+    function loadLocalRuffle() {
+        const script = document.createElement('script');
+        script.src = 'ruffle/ruffle.js';
+        script.onload = initializeGame;
+        document.body.appendChild(script);
+    }
+
+    const cdnScript = document.createElement('script');
+    cdnScript.src = 'https://unpkg.com/@ruffle-rs/ruffle';
+    cdnScript.onload = initializeGame;
+    cdnScript.onerror = loadLocalRuffle;
+    document.body.appendChild(cdnScript);
+
+    function initializeGame() {
+        // Wait for Ruffle to be available
+        if (!window.RufflePlayer || !window.RufflePlayer.newest) {
+            setTimeout(initializeGame, 100);
+            return;
+        }
+
         const ruffle = window.RufflePlayer.newest();
         const player = ruffle.createPlayer();
         const container = document.getElementById("ruffle");
@@ -69,6 +69,14 @@
         container.appendChild(player);
         player.load("FPAWorld2.swf");
 
+        setupJoysticks();
+    }
+</script>
+
+<!-- NippleJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+<script>
+    function setupJoysticks() {
         const DEADZONE = 40;
 
         function dispatchKey(code, type) {
@@ -81,7 +89,7 @@
             document.dispatchEvent(event);
         }
 
-        // LEFT JOYSTICK – Movement
+        // LEFT joystick - Movement
         const keyMap = {
             up: 'ArrowUp',
             down: 'ArrowDown',
@@ -132,11 +140,9 @@
             }
         });
 
-        joystickLeft.on('end', () => {
-            clearAllDirections();
-        });
+        joystickLeft.on('end', clearAllDirections);
 
-        // RIGHT JOYSTICK – JUMP (KeyS)
+        // RIGHT joystick - Jump (KeyS)
         const joystickRight = nipplejs.create({
             zone: document.getElementById('joystick-right'),
             mode: 'static',
@@ -161,7 +167,7 @@
                 jumpActive = false;
             }
         });
-    });
+    }
 </script>
 </body>
 </html>
