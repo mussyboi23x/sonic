@@ -111,6 +111,10 @@
       player.style.height = "100%";
       document.getElementById("ruffle").appendChild(player);
       player.load("FPAWorld2.swf");
+      setTimeout(() => {
+      player.focus?.();
+      }, 500);
+
     });
 
     function press(code, e) {
