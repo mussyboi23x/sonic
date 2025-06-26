@@ -46,7 +46,6 @@
       text-align: center;
       line-height: 60px;
       pointer-events: auto;
-      user-select: none;
     }
     .up    { grid-area: up; }
     .down  { grid-area: down; }
@@ -84,9 +83,9 @@
   </div>
 
   <!-- Jump button -->
-  <div class="jump btn" ontouchstart="press('s', event)" ontouchend="release('s', event)">Jump</div>
+  <div class="jump btn" ontouchstart="press('KeyS', event)" ontouchend="release('KeyS', event)">Jump</div>
 
-  <!-- Ruffle script loader -->
+  <!-- Ruffle loader -->
   <script>
     function loadLocalRuffle() {
       const script = document.createElement('script');
@@ -113,23 +112,19 @@
       player.load("FPAWorld2.swf");
     });
 
-    function getFrame() {
+    function press(code, e) {
+      e?.preventDefault();
       const player = document.getElementById("player");
-      return player?.shadowRoot?.querySelector("embed");
+      player?._input?.dispatch_key_down({ code });
     }
 
-    function press(key, e) {
+    function release(code, e) {
       e?.preventDefault();
-      const frame = getFrame();
-      if (frame) frame.dispatchEvent(new KeyboardEvent("keydown", { key }));
-    }
-
-    function release(key, e) {
-      e?.preventDefault();
-      const frame = getFrame();
-      if (frame) frame.dispatchEvent(new KeyboardEvent("keyup", { key }));
+      const player = document.getElementById("player");
+      player?._input?.dispatch_key_up({ code });
     }
   </script>
 
 </body>
 </html>
+
