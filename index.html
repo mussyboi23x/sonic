@@ -1,91 +1,220 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Choose Your Weapon</title>
-  <link rel="shortcut icon" href="../../images/ico.ico" type="image/x-icon" />
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      overflow: hidden;
-    }
-    #ruffle {
-      width: 100%;
-      height: 100%;
-    }
-    #joystick-zone {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      width: 180px;
-      height: 180px;
-      z-index: 10;
-    }
-  </style>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>Choose Your Weapon</title>
+    <link href="../../images/ico.ico" rel="shortcut icon" type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        #joystick-zone {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 240px;
+            height: 240px;
+            z-index: 10;
+        }
+
+        #joystick-zone-right {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 180px;
+            height: 180px;
+            z-index: 10;
+        }
+
+        .button-grid {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-gap: 10px;
+        }
+
+        .btn {
+            background-color: white;
+            color: black;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            height: 60px;
+            width: 60px;
+        }
+
+        .btn-large {
+            font-size: 22px;
+            height: 70px;
+            width: 70px;
+        }
+
+        .special-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 20;
+        }
+    </style>
 </head>
 <body>
-  <div id="ruffle"></div>
-  <div id="joystick-zone"></div>
 
-  <!-- Ruffle Loader -->
-  <script>
+<!-- Ruffle container -->
+<div height="100%" id="ruffle" width="100%"></div>
+
+<!-- Left joystick -->
+<div id="joystick-zone"></div>
+
+<!-- Right joystick (for jump) -->
+<div id="joystick-zone-right"></div>
+
+<!-- A and S buttons -->
+<div class="special-buttons">
+    <button class="btn btn-large" onclick="sendKey('KeyA')">A</button>
+    <button class="btn btn-large" onclick="sendKey('KeyS')">S</button>
+</div>
+
+<!-- Load Ruffle -->
+<script>
     function loadLocalRuffle() {
-      const script = document.createElement('script');
-      script.src = 'ruffle/ruffle.js';
-      document.body.appendChild(script);
+        var script = document.createElement('script');
+        script.src = 'ruffle/ruffle.js';
+        document.body.appendChild(script);
     }
 
-    const cdnScript = document.createElement('script');
+    var cdnScript = document.createElement('script');
     cdnScript.src = 'https://unpkg.com/@ruffle-rs/ruffle';
     cdnScript.onerror = loadLocalRuffle;
     document.body.appendChild(cdnScript);
-  </script>
+</script>
 
-  <!-- NippleJS Joystick -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+<!-- NippleJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
 
-  <!-- Game + Joystick Logic -->
-  <script>
+<!-- Main Game + Joystick Logic -->
+<script>
     function waitForRuffle(callback) {
-      if (window.RufflePlayer?.newest) {
-        callback();
-      } else {
-        setTimeout(() => waitForRuffle(callback), 100);
-      }
+        if (window.RufflePlayer?.newest) {
+            callback();
+        } else {
+            setTimeout(() => waitForRuffle(callback), 100);
+        }
     }
 
     waitForRuffle(() => {
-      const ruffle = window.RufflePlayer.newest();
-      const player = ruffle.createPlayer();
-      player.style.width = "100%";
-      player.style.height = "100%";
-      document.getElementById("ruffle").appendChild(player);
-      player.load("FPAWorld2.swf");
+        const ruffle = window.RufflePlayer.newest();
+        const player = ruffle.createPlayer();
+        const container = document.getElementById("ruffle");
+        player.id = "player";
+        player.style.width = "100%";
+        player.style.height = "100%";
+        container.appendChild(player);
+        player.load("FPAWorld2.swf");
 
-      const joystick = nipplejs.create({
-        zone: document.getElementById('joystick-zone'),
-        mode: 'static',
-        position: { right: '90px', bottom: '90px' },
-        size: 150,
-        color: 'white',
-        restOpacity: 0.5
-      });
+        // Helper to dispatch key events
+        function sendKey(code, type = 'keydown') {
+            const event = new KeyboardEvent(type, {
+                bubbles: true,
+                cancelable: true,
+                code: code,
+                key: code.replace('Key', '').replace('Digit', ''),
+            });
+            document.dispatchEvent(event);
+        }
 
-      joystick.on('start', () => sendJump(true));
-      joystick.on('end', () => sendJump(false));
-
-      function sendJump(down) {
-        const event = new KeyboardEvent(down ? 'keydown' : 'keyup', {
-          bubbles: true,
-          cancelable: true,
-          code: 'KeyS',
-          key: 's'
+        // Left joystick: arrows
+        const DEADZONE = 40;
+        const leftJoystick = nipplejs.create({
+            zone: document.getElementById('joystick-zone'),
+            mode: 'static',
+            position: { left: '120px', bottom: '120px' },
+            size: 180,
+            color: 'white',
+            restOpacity: 0.5
         });
-        document.dispatchEvent(event);
-      }
+
+        const keyMap = {
+            up: 'ArrowUp',
+            down: 'ArrowDown',
+            left: 'ArrowLeft',
+            right: 'ArrowRight'
+        };
+
+        let activeDirections = {};
+
+        function clearAllDirections() {
+            for (const key of Object.keys(activeDirections)) {
+                sendKey(keyMap[key], 'keyup');
+            }
+            activeDirections = {};
+        }
+
+        leftJoystick.on('move', (evt, data) => {
+            if (data.distance < DEADZONE || !data.direction?.angle) {
+                clearAllDirections();
+                return;
+            }
+
+            const dir = data.direction.angle;
+            const directions = {
+                up: dir.includes('up'),
+                down: dir.includes('down'),
+                left: dir.includes('left'),
+                right: dir.includes('right'),
+            };
+
+            for (const [key, isActive] of Object.entries(directions)) {
+                if (isActive && !activeDirections[key]) {
+                    sendKey(keyMap[key], 'keydown');
+                    activeDirections[key] = true;
+                } else if (!isActive && activeDirections[key]) {
+                    sendKey(keyMap[key], 'keyup');
+                    delete activeDirections[key];
+                }
+            }
+        });
+
+        leftJoystick.on('end', () => {
+            clearAllDirections();
+        });
+
+        // Right joystick: single input 'S' key for jump
+        const rightJoystick = nipplejs.create({
+            zone: document.getElementById('joystick-zone-right'),
+            mode: 'static',
+            position: { right: '90px', bottom: '90px' },
+            size: 150,
+            color: 'white',
+            restOpacity: 0.5
+        });
+
+        function sendJump(down) {
+            const event = new KeyboardEvent(down ? 'keydown' : 'keyup', {
+                bubbles: true,
+                cancelable: true,
+                code: 'KeyS',
+                key: 's'
+            });
+            document.dispatchEvent(event);
+        }
+
+        rightJoystick.on('start', () => sendJump(true));
+        rightJoystick.on('end', () => sendJump(false));
+
+        // Buttons 'A' and 'S' use sendKey helper
+        window.sendKey = sendKey;
     });
-  </script>
+</script>
+
 </body>
 </html>
