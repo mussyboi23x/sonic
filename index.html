@@ -46,14 +46,28 @@
             position: absolute;
             bottom: 20px;
             right: 20px;
-            width: 180px;
-            height: 180px;
+            width: 100px;
+            height: 100px;
             z-index: 10;
             -webkit-user-select: none;
             user-select: none;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
         }
+
+        #joystick-zone-middle {
+            position: absolute;
+            left: 250px;
+            right: 250px;
+            width: 100px;
+            height: 100px;
+            z-index: 10;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
         #ruffle > * {
           width: 100% !important;
           height: 100% !important;
@@ -72,6 +86,9 @@
 
 <!-- Right joystick -->
 <div id="joystick-zone-right"></div>
+
+<!-- Middle Joystick -->
+<div id="joystick-zone-middle"></div>
 
 <!-- NippleJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
@@ -215,6 +232,34 @@
     rightJoystick.on('end', () => sendJump(false));
 
 })();
+</script>
+<script>
+    // 👇 Center-bottom joystick that triggers Space on any movement
+const jumpStick = nipplejs.create({
+  zone: document.getElementById('joystick-zone-middle'), // your centered div
+  mode: 'static',
+  position: { left: '50%', bottom: '120px' },
+  size: 100,
+  color: 'white',
+  restOpacity: 0.5
+});
+
+let jumpActive = false;
+
+jumpStick.on('move', () => {
+  if (!jumpActive) {
+    sendKey('Space', 'keydown');
+    jumpActive = true;
+  }
+});
+
+jumpStick.on('end', () => {
+  if (jumpActive) {
+    sendKey('Space', 'keyup');
+    jumpActive = false;
+  }
+});
+
 </script>
 <script>
   document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
