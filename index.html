@@ -80,6 +80,19 @@
 
 <body>
 
+<script>
+  function sendKey(code, type = 'keydown') {
+    const event = new KeyboardEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      code: code,
+      key: code.replace('Key', '').replace('Digit', '')
+    });
+    document.dispatchEvent(event);
+  }
+</script>
+
+    
 <div id="ruffle"></div>
 
 <!-- Left joystick -->
