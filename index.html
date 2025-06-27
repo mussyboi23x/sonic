@@ -212,6 +212,36 @@
         clearAllDirections();
     });
 
+    // Middle (spacebar) joystick
+const jumpStick = nipplejs.create({
+  zone: document.getElementById('joystick-zone-middle'),
+  mode: 'static',
+  position: { left: '50%', bottom: '120px' },
+  size: 100,
+  color: 'white',
+  restOpacity: 0.5
+});
+
+let spaceDown = false;
+
+jumpStick.on('start', () => {
+  if (!spaceDown) {
+    sendKey('Space', 'keydown');
+    spaceDown = true;
+  }
+});
+
+jumpStick.on('end', () => {
+  if (spaceDown) {
+    sendKey('Space', 'keyup');
+    spaceDown = false;
+  }
+
+  // Optional: Visually reset the joystick knob
+  jumpStick[0].ui.front.style.transform = 'translate(0px, 0px)';
+});
+
+
     // Right joystick - single 'S' key (jump)
     const rightJoystick = nipplejs.create({
         zone: document.getElementById('joystick-zone-right'),
@@ -236,34 +266,6 @@
     rightJoystick.on('end', () => sendJump(false));
 
 })();
-</script>
-<script>
-    // 👇 Center-bottom joystick that triggers Space on any movement
-const jumpStick = nipplejs.create({
-  zone: document.getElementById('joystick-zone-middle'), // your centered div
-  mode: 'static',
-  position: { left: '50%', bottom: '120px' },
-  size: 100,
-  color: 'white',
-  restOpacity: 0.5
-});
-
-let jumpActive = false;
-
-jumpStick.on('move', () => {
-  if (!jumpActive) {
-    sendKey('Space', 'keydown');
-    jumpActive = true;
-  }
-});
-
-jumpStick.on('end', () => {
-  if (jumpActive) {
-    sendKey('Space', 'keyup');
-    jumpActive = false;
-  }
-});
-
 </script>
 <script>
   document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
