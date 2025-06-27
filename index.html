@@ -155,16 +155,6 @@
         console.error("Error loading SWF:", e);
     }
 
-    // Helper function to send keyboard events
-    function sendKey(code, type = 'keydown') {
-        const event = new KeyboardEvent(type, {
-            bubbles: true,
-            cancelable: true,
-            code: code,
-            key: code.replace('Key', '').replace('Digit', ''),
-        });
-        document.dispatchEvent(event);
-    }
 
     // Left joystick - arrow keys
     const DEADZONE = 40;
