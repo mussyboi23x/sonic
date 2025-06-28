@@ -233,7 +233,7 @@ jumpStick.on('start', () => {
 
 jumpStick.on('end', () => {
   if (spaceDown) {
-    sendKey('Space', 'keyup');
+    sendKey(' ', 'keyup');
     spaceDown = false;
   }
 
