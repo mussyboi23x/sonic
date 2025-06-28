@@ -226,7 +226,7 @@ let spaceDown = false;
 
 jumpStick.on('start', () => {
   if (!spaceDown) {
-    sendKey('Space', 'keydown');
+    sendKey(' ', 'keydown');
     spaceDown = true;
   }
 });
