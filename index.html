@@ -68,7 +68,24 @@
           touch-action: manipulation;
           -webkit-tap-highlight-color: transparent;
         }
-        
+        #button-zone-q {
+           position: absolute;
+           top: 20px;
+           left: 20px;
+           width: 100px;
+           height: 100px;
+           background: rgba(255, 255, 255, 0.2);
+           border-radius: 50%;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           cursor: pointer;
+           user-select: none;
+           -webkit-tap-highlight-color: transparent;
+           touch-action: manipulation;
+           transition: background 0.2s ease;
+        }
+
         #ruffle > * {
           width: 100% !important;
           height: 100% !important;
@@ -103,6 +120,10 @@
 
 <!-- Middle Joystick -->
 <div id="joystick-zone-middle"></div>
+
+<!-- Q button -->
+<div id="button-zone-q"></div>
+
 
 <!-- NippleJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
@@ -264,6 +285,52 @@ jumpStick.on('end', () => {
 
     rightJoystick.on('start', () => sendJump(true));
     rightJoystick.on('end', () => sendJump(false));
+
+    const qButton = document.getElementById('button-zone-q');
+
+qButton.innerHTML = '<span>Q</span>';
+
+let qDown = false;
+
+qButton.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (!qDown) {
+    sendKey('KeyQ', 'keydown');
+    qDown = true;
+  }
+});
+
+qButton.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (qDown) {
+    sendKey('KeyQ', 'keyup');
+    qDown = false;
+  }
+});
+
+qButton.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  if (!qDown) {
+    sendKey('KeyQ', 'keydown');
+    qDown = true;
+  }
+});
+
+qButton.addEventListener('mouseup', (e) => {
+  e.preventDefault();
+  if (qDown) {
+    sendKey('KeyQ', 'keyup');
+    qDown = false;
+  }
+});
+
+qButton.addEventListener('mouseleave', (e) => {
+  // if mouse leaves the button while pressed, send keyup
+  if (qDown) {
+    sendKey('KeyQ', 'keyup');
+    qDown = false;
+  }
+});
 
 })();
 </script>
