@@ -286,51 +286,28 @@ jumpStick.on('end', () => {
     rightJoystick.on('start', () => sendJump(true));
     rightJoystick.on('end', () => sendJump(false));
 
-    const qButton = document.getElementById('button-zone-q');
+    // q button
+        const menubutton = nipplejs.create({
+        zone: document.getElementById('button-zone-q'),
+        mode: 'static',
+        position: { top: '90px', left: '90px' },
+        size: 90,
+        color: 'blue',
+        restOpacity: 0.5
+    });
 
-qButton.innerHTML = '<span>Q</span>';
+    function sendMenu(down) {
+        const event = new KeyboardEvent(down ? 'keydown' : 'keyup', {
+            bubbles: true,
+            cancelable: true,
+            code: 'KeyQ',
+            key: 'q'
+        });
+        document.dispatchEvent(event);
+    }
 
-let qDown = false;
-
-qButton.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  if (!qDown) {
-    sendKey('KeyQ', 'keydown');
-    qDown = true;
-  }
-});
-
-qButton.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  if (qDown) {
-    sendKey('KeyQ', 'keyup');
-    qDown = false;
-  }
-});
-
-qButton.addEventListener('mousedown', (e) => {
-  e.preventDefault();
-  if (!qDown) {
-    sendKey('KeyQ', 'keydown');
-    qDown = true;
-  }
-});
-
-qButton.addEventListener('mouseup', (e) => {
-  e.preventDefault();
-  if (qDown) {
-    sendKey('KeyQ', 'keyup');
-    qDown = false;
-  }
-});
-
-qButton.addEventListener('mouseleave', (e) => {
-  // if mouse leaves the button while pressed, send keyup
-  if (qDown) {
-    sendKey('KeyQ', 'keyup');
-    qDown = false;
-  }
-});
+    menubutton.on('start', () => sendMenu(true));
+    menubutton.on('end', () => sendMenu(false));
 
 })();
 </script>
