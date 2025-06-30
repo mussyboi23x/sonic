@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
-    <title>FPA2</title>
+    <title>FPA</title>
     <link href="../../images/ico.ico" rel="shortcut icon" type="image/x-icon">
     <style>
         body {
@@ -286,7 +286,7 @@ jumpStick.on('end', () => {
     rightJoystick.on('start', () => sendJump(true));
     rightJoystick.on('end', () => sendJump(false));
 
-    // q button
+    // m button
         const menubutton = nipplejs.create({
         zone: document.getElementById('button-zone-q'),
         mode: 'static',
@@ -300,8 +300,8 @@ jumpStick.on('end', () => {
         const event = new KeyboardEvent(down ? 'keydown' : 'keyup', {
             bubbles: true,
             cancelable: true,
-            code: 'KeyQ',
-            key: 'q'
+            code: 'KeyM',
+            key: 'm'
         });
         document.dispatchEvent(event);
     }
